@@ -19,7 +19,8 @@ def do_column(df,col):
         else:
             return pd.DataFrame(df[col].describe())
     if pd.core.dtypes.common.is_numeric_dtype(df[col]):
-        ax = df.hist(column=col)
+        ax = df.hist(column=col)[0][0]
+        ax.set_title(None)
         plt.close()
         return ax
 
@@ -27,7 +28,7 @@ def matplotlib_to_html(ax):
     fig = ax.get_figure()
     
     tmpfile = BytesIO()
-    fig.set_size_inches(2,1.5)
+    fig.set_size_inches(2,1.75)
     fig.savefig(tmpfile, format='png', facecolor=None, bbox_inches='tight')
     plt.close()
     encoded = base64.b64encode(tmpfile.getvalue()).decode('utf-8')
@@ -66,12 +67,13 @@ def combine_to_row(*args): #convert DataFrames to HTML and display side-by-side
     # can also display HTML Table strings
     html_str=''
     valign = "vertical-align:bottom;"
+    scroll_table = 'style="display: block; max-height: 1in; overflow-y: auto"'
     for df in args:
         if type(df)==pd.DataFrame:
-            html_str += f'<td style="{valign}">{df.to_html()}</td>'
+            #html_str += f'<td style="{valign}">{df.to_html().replace("<tbody",f"<tbody {scroll_table}")}</td>'
+            html_str += f'<td style="{valign}">{df.to_html(header=False).replace("<tbody",f"<tbody {scroll_table}")}</td>'
         else:
             html_str += f'<td style="min-width:125px;{valign}">{df}</td>'
-    #html_str = html_str.replace('table','table style="display:inline"')
     return html_str
     #deepgreen._display_html(html_str.replace('table','table style="display:inline"'),raw=True)
 
