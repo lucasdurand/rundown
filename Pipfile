@@ -10,7 +10,6 @@ jupyter = "*"
 pandas = "*"
 matplotlib = "*"
 seaborn = "*"
-monkeypatch = "*"
 
 [requires]
 python_version = "3.6"
