@@ -27,6 +27,5 @@ def rundown(df, n=10):
     the_whole_thing = sample.replace('<thead>',f'<thead><tr>{rundown}</tr>')
     return _rundown.HTML(the_whole_thing)
 
-def rundown_method(self):
-    return rundown(self)
 
+_rundown.pd.DataFrame.rundown = rundown

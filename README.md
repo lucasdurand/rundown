@@ -13,9 +13,7 @@ To be run in a Jupyter Notebook, or somewhere else with nice HTML rendering of P
 import pandas as pd
 import rundown
 
-pd.DataFrame.rundown = rundown.rundown_method
-
-sample_df = # make one!
+sample_df = pd.util.testing.makeDataFrame() # make one!
 
 sample_df.rundown()
 ```

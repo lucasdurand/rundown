@@ -82,5 +82,5 @@ def add_dtypes(html, df):
     dtypes = df.dtypes
     for col in df:
         dtype = dtypes[col]
-        html = html.replace(col,col+f"<br/><i>{dtype}</i>")
+        html = html.replace(f"<th>{col}</th>",f"<th>{col}<br/><i>{dtype}</i></th>")
     return html
