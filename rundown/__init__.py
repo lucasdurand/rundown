@@ -11,6 +11,9 @@ def rundown(df, n=10):
 
     	"Do you have that rundown ready for me Jim?"
     '''
+    df.columns.names = [None for name in df.columns.names]
+    df = df.reset_index()
+    
     dfs = []
     for col in df:
         dfs+=[(col,_rundown.do_column(df,col))]
