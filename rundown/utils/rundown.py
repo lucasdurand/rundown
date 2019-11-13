@@ -1,8 +1,6 @@
 # do the things
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
-from IPython.display import HTML, display
 import base64
 from io import BytesIO
 

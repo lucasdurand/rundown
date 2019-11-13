@@ -10,7 +10,7 @@ README = (HERE / "README.md").read_text()
 # This call to setup() does all the work
 setup(
     name="rundown",
-    version="0.1.2",
+    version="0.1.4",
     description="Quick and dirty overview of a Pandas DataFrame",
     long_description=README,
     long_description_content_type="text/markdown",
@@ -23,7 +23,7 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
     ],
-    packages=["rundown"],
+    packages=["rundown","rundown.utils"],
     include_package_data=True,
-    install_requires=["pandas", "matplotlib", "seaborn"],
+    install_requires=["pandas", "matplotlib"],
 )

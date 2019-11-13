@@ -9,7 +9,7 @@ def rundown(df, n=10):
     '''
     	What's a rundown? It's High-level summary of a pandas DataFrame, meant to render in Jupyter Notebooks.
 
-    	"Do you have that rundown ready for me Jim?"
+    	"Do you have that rundown ready for me, Jim?"
     '''
     df.columns.names = [None for name in df.columns.names]
     df = df.reset_index()
@@ -28,7 +28,12 @@ def rundown(df, n=10):
     sample = _rundown.add_dtypes(df.sample(min(n,len(df))).to_html(index=False),df)
     #sample = df.sample(min(n,len(df))).to_html(index=False)
     the_whole_thing = sample.replace('<thead>',f'<thead><tr>{rundown}</tr>')
-    return _rundown.HTML(the_whole_thing)
+
+    class Rundown:
+        def _repr_html_(self):
+            return the_whole_thing
+
+    return Rundown()
 
 
 _rundown.pd.DataFrame.rundown = rundown
