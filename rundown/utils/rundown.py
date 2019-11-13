@@ -19,10 +19,12 @@ def do_column(df,col):
         else:
             return pd.DataFrame(df[col].describe())
     if pd.core.dtypes.common.is_numeric_dtype(df[col]):
-        ax = df.hist(column=col)[0][0]
+        ax = df.hist(column=col, grid=False)[0][0]
         ax.set_title(None)
         plt.close()
         return ax
+    else:
+        return pd.DataFrame(df[col].describe())
 
 def matplotlib_to_html(ax):
     fig = ax.get_figure()

@@ -10,6 +10,7 @@ jupyter = "*"
 pandas = "*"
 matplotlib = "*"
 seaborn = "*"
+rundown = {editable = true,path = "."}
 
 [requires]
 python_version = "3.6"
