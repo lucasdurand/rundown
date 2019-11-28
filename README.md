@@ -3,7 +3,7 @@ A fun addition to pandas?
 
 ## Installation
 
-We'll get to this, just do the `git clone` and the `pip install .` , you know.
+`pip install rundown`
 
 ## Usage
 
