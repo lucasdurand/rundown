@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rundown"
-version = "0.1.4"
+version = "0.2.0"
 description = "Quick and dirty overview of a Pandas DataFrame"
 readme = "README.md"
 license = "MIT"
