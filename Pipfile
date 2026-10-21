@@ -4,13 +4,13 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-jupyter = "*"
+jupyter = ">=1.1"
 
 [packages]
-pandas = "*"
-matplotlib = "*"
-seaborn = "*"
+pandas = ">=3.0"
+matplotlib = ">=3.11"
+seaborn = ">=0.13"
 rundown = {editable = true,path = "."}
 
 [requires]
-python_version = "3.6"
+python_version = "3.12"
