@@ -5,18 +5,18 @@ import base64
 from io import BytesIO
 
 def counts(df,col):
-    vals = pd.DataFrame(df[col].fillna('NaN').value_counts() / len(df)).sort_index() * 100
+    vals = (df[col].fillna('NaN').value_counts() / len(df)).to_frame(col).sort_index() * 100
     vals[col] = vals[col].round(2).astype(str) + '%'
     return vals
 
 def do_column(df,col):
-    if pd.core.dtypes.common.is_integer_dtype(df[col]) or pd.core.dtypes.common.is_string_dtype(df[col]) or pd.core.dtypes.common.is_categorical_dtype(df[col]):
+    if pd.api.types.is_integer_dtype(df[col]) or pd.api.types.is_string_dtype(df[col]) or isinstance(df[col].dtype, pd.CategoricalDtype):
         if df[col].nunique() < 10:
             total = len(df)
             return counts(df,col)
         else:
             return pd.DataFrame(df[col].describe())
-    if pd.core.dtypes.common.is_numeric_dtype(df[col]):
+    if pd.api.types.is_numeric_dtype(df[col]):
         ax = df.hist(column=col, grid=False)[0][0]
         ax.set_title(None)
         plt.close()

@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rundown"
+version = "0.2.0"
+description = "Quick and dirty overview of a Pandas DataFrame"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Lucas Durand", email = "lucas@lucasdurand.xyz" }]
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "matplotlib",
+    "pandas",
+]
+
+[project.urls]
+Homepage = "https://github.com/lucasdurand/rundown"
+
+[dependency-groups]
+dev = [
+    "jupyter>=1.1",
+    "matplotlib>=3.11",
+    "pandas>=3.0",
+    "seaborn>=0.13",
+]
+
+[tool.setuptools]
+packages = ["rundown", "rundown.utils"]
+include-package-data = true
