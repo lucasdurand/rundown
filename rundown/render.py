@@ -258,7 +258,7 @@ def render(
     names, margins, sparks = [], [], []
     for i, prof in enumerate(profiles):
         idx = " rd-idx" if i < n_index else ""
-        num = " rd-num" if prof.kind == NUMERIC or prof.dtype.startswith(("int", "Int", "uint", "UInt", "float", "Float")) else ""
+        num = " rd-num" if prof.kind == NUMERIC or prof.align_right else ""
         names.append(
             f'<th class="rd-col{idx}{num}" data-col="{i}" title="Click to sort">'
             f'<div class="rd-name">{_esc(prof.name)}</div><div class="rd-dtype">{_esc(prof.dtype)}</div></th>'

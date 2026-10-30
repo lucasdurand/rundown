@@ -159,3 +159,59 @@ def test_formatting():
     assert ">40.0<" in html and ">34.5<" in html
     assert ">27.72<" in html and ">7.25<" in html
     assert ">1,000<" in html
+
+
+def test_polars():
+    pl = pytest.importorskip("polars")
+    import datetime as dt
+
+    n = 50
+    df = pl.DataFrame(
+        {
+            "x": np.linspace(0, 1, n),
+            "i": pl.Series([None if k % 7 == 0 else k for k in range(n)], dtype=pl.Int64),
+            "s": [["a", "b", "c"][k % 3] for k in range(n)],
+            "c": pl.Series([["u", "v"][k % 2] for k in range(n)], dtype=pl.Categorical),
+            "b": pl.Series([None if k % 5 == 0 else k % 2 == 0 for k in range(n)], dtype=pl.Boolean),
+            "t": pl.datetime_range(dt.datetime(2024, 1, 1), dt.datetime(2024, 1, 1) + dt.timedelta(hours=n - 1),
+                                   "1h", time_zone="America/Toronto", eager=True),
+            "d": pl.Series([dt.timedelta(seconds=k) for k in range(n)]),
+            "l": [[k, k + 1] for k in range(n)],
+        }
+    )
+    r = df.rundown(sparklines=True, random_state=0)
+    assert r.shape == (n, 8)
+    assert "polars DataFrame" in r.html
+    kinds = {p.name: p.kind for p in r.profiles}
+    assert kinds["x"] == NUMERIC and kinds["s"] == CATEGORICAL and kinds["c"] == CATEGORICAL
+    assert kinds["t"] == DATETIME and kinds["d"] == TIMEDELTA
+    nulls = {p.name: p.nulls for p in r.profiles}
+    assert nulls["i"] == 8 and nulls["b"] == 10
+    dtypes = {p.name: p.dtype for p in r.profiles}
+    assert dtypes["x"] == "f64" and dtypes["i"] == "i64" and dtypes["s"] == "str"
+    assert "America/Toronto" in dtypes["t"]
+    assert r.profiles[[p.name for p in r.profiles].index("t")].stats["tz"] is not None
+    # integers with nulls stay integers in the rows (no "3.0")
+    ih = pl.DataFrame({"i": pl.Series([1, None, 3])}).rundown(sample="head").html.split("<tbody")[1]
+    assert ">3<" in ih and ">3.0<" not in ih
+    assert df.shape == (n, 8)  # input untouched
+    assert pl.Series("v", [1, 2, 3]).rundown().shape == (3, 1)
+    assert "polars Series" in rundown.rundown(pl.Series([1.0, None])).html
+    assert rundown.rundown(df, max_columns=3).html.count('class="rd-col') == 3
+    assert "first 3 columns" in rundown.rundown(df, max_columns=3).html
+    with pytest.raises(TypeError, match="collect"):
+        rundown.rundown(df.lazy())
+
+
+def test_unsupported_type():
+    with pytest.raises(TypeError):
+        rundown.rundown([1, 2, 3])
+
+
+def test_to_dash(mixed):
+    pytest.importorskip("dash")
+    frame = mixed.rundown().to_dash(id="rd", style={"height": "300px"})
+    assert type(frame).__name__ == "Iframe" and frame.id == "rd"
+    assert frame.style["height"] == "300px" and frame.style["width"] == "100%"
+    assert frame.srcDoc.startswith("<!doctype html>") and "frameElement" in frame.srcDoc
+    assert 'class="rundown' in frame.srcDoc

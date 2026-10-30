@@ -28,6 +28,8 @@ class ColumnProfile:
     top: list[tuple[str, int]] = field(default_factory=list)
     other: int = 0
     sparkline: dict | None = None
+    # right-align cells (numeric dtype, whatever the margin viz kind)
+    align_right: bool = False
 
     @property
     def null_pct(self) -> float:
@@ -128,6 +130,7 @@ def profile_column(
     unique = int(counts.size)
     kind = _kind(s, unique, discrete_threshold)
     prof = ColumnProfile(name=name, dtype=str(s.dtype), kind=kind, count=count, nulls=nulls, unique=unique)
+    prof.align_right = pd.api.types.is_numeric_dtype(s.dtype) and not pd.api.types.is_bool_dtype(s.dtype)
 
     axis = _numeric_axis(s) if kind != CATEGORICAL or pd.api.types.is_numeric_dtype(s.dtype) else None
     if axis is not None and np.isfinite(axis).any():
