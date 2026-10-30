@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "rundown"
 version = "0.3.0"
-description = "A sleek, scalable overview of a pandas DataFrame: margin histograms, top values, sparklines"
+description = "A sleek, scalable overview of a pandas or polars DataFrame: margin histograms, top values, sparklines"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
@@ -24,8 +24,10 @@ Homepage = "https://github.com/lucasdurand/rundown"
 
 [dependency-groups]
 dev = [
+    "dash>=4.5.0",
     "jupyter>=1.1",
     "pandas>=3.0",
+    "polars>=2.1.0",
     "pytest>=8",
     "seaborn>=0.13",
 ]
@@ -35,3 +37,6 @@ packages = ["rundown"]
 
 [tool.setuptools.package-data]
 rundown = ["assets/*"]
+
+[tool.pytest.ini_options]
+addopts = "-p no:dash"

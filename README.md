@@ -1,5 +1,5 @@
 # rundown
-A quick, good-looking overview of a pandas DataFrame for notebooks.
+A quick, good-looking overview of a pandas or polars DataFrame for notebooks (and Dash).
 
 ## Installation
 
@@ -52,6 +52,29 @@ df.rundown(
 ```
 
 `pd.Series.rundown()` works too. The result displays itself in a notebook; use `.to_html()` or `.save("rundown.html")` to use it elsewhere.
+
+### polars
+
+`import rundown` also adds `.rundown()` to polars DataFrames and Series when polars is installed. Headers show polars dtypes (`i64`, `str`, ...). pyarrow isn't needed. Only the first `max_columns` columns are converted for profiling. Call `.collect()` on a LazyFrame first.
+
+```python
+import polars as pl
+pl.read_parquet("trips.parquet").rundown(sparklines=True)
+```
+
+Other frames work through the plain function `rundown.rundown(obj)` if they have a `to_pandas()` method or support the Arrow PyCapsule interface (pandas 3, needs pyarrow).
+
+### Dash
+
+No custom component is needed. `.to_dash()` returns an `html.Iframe` that sizes itself to its content, with sorting and filtering still working:
+
+```python
+from dash import Dash, html
+app = Dash()
+app.layout = html.Div([df.rundown(sparklines=True).to_dash(id="summary")])
+```
+
+Inside the iframe it uses the light theme, because the notebook theme variables don't reach it.
 
 ## Development
 

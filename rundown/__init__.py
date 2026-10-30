@@ -5,6 +5,9 @@ Rundown: a quick, good-looking overview of a pandas DataFrame for notebooks.
     df.rundown()                  # margin viz: a histogram / top-values chart above every column
     df.rundown(sparklines=True)   # ...plus a sparkline of each column in row order
 
+Works on pandas and polars DataFrames/Series (and anything with `to_pandas()` or the Arrow
+PyCapsule interface). `rundown.rundown(df)` is the same thing as a plain function.
+
 "Do you have that rundown ready for me, Jim?"
 """
 
@@ -16,6 +19,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from .convert import to_pandas
 from .profile import ColumnProfile, profile_column
 from .render import render
 
@@ -27,6 +31,13 @@ except PackageNotFoundError:  # pragma: no cover
 __all__ = ["Rundown", "rundown", "ColumnProfile"]
 
 SAMPLE_MODES = ("random", "head", "tail")
+
+# srcdoc iframes share the parent's origin, so the page can resize its own frame to fit
+_FIT_FRAME = (
+    "<script>(function(){function fit(){var f=window.frameElement;"
+    "if(f)f.style.height=Math.ceil(document.body.getBoundingClientRect().height)+'px';}"
+    "addEventListener('load',fit);if(window.ResizeObserver)new ResizeObserver(fit).observe(document.body);})();</script>"
+)
 
 
 class Rundown:
@@ -43,11 +54,26 @@ class Rundown:
     def to_html(self) -> str:
         return self.html
 
+    def _page(self, head: str = "") -> str:
+        return f'<!doctype html><meta charset="utf-8"><title>rundown</title>{head}{self.html}'
+
     def save(self, path: str | Path) -> Path:
         """Write a standalone HTML page."""
         path = Path(path)
-        path.write_text(f'<!doctype html><meta charset="utf-8"><title>rundown</title>{self.html}', encoding="utf-8")
+        path.write_text(self._page(), encoding="utf-8")
         return path
+
+    def to_dash(self, **kwargs):
+        """
+        A Dash `html.Iframe` showing this rundown (sorting/filtering included), sized to fit its content.
+
+        Keyword arguments are passed to `html.Iframe` (e.g. `id`, `style`). Requires `dash`.
+        """
+        from dash import html
+
+        page = self._page("<style>body{margin:0;display:flow-root}</style>" + _FIT_FRAME)
+        style = {"width": "100%", "border": "0", "height": "520px", **kwargs.pop("style", {})}
+        return html.Iframe(srcDoc=page, style=style, **kwargs)
 
     def __repr__(self) -> str:
         rows, cols = self.shape
@@ -78,7 +104,7 @@ def _columns(df: pd.DataFrame, max_columns: int | None) -> tuple[list[tuple[str,
 
 
 def rundown(
-    df: pd.DataFrame | pd.Series,
+    df,
     n: int = 10,
     *,
     sample: str = "random",
@@ -101,6 +127,7 @@ def rundown(
 
     Parameters
     ----------
+    df : pandas or polars DataFrame/Series (or anything with `to_pandas()` / `__arrow_c_stream__`).
     n : number of rows to show.
     sample : which rows to show: "random" (kept in their original order), "head" or "tail".
     sparklines : add a row of sparklines showing each numeric/datetime/bool column's values
@@ -116,11 +143,11 @@ def rundown(
     """
     if sample not in SAMPLE_MODES:
         raise ValueError(f"sample must be one of {SAMPLE_MODES}, got {sample!r}")
-    kind = type(df).__name__
+    df, kind, dtypes = to_pandas(df, max_columns)
     if isinstance(df, pd.Series):
         df = df.to_frame(name=df.name if df.name is not None else "value")
     rng = np.random.default_rng(random_state)
-    nrows, ncols = df.shape
+    nrows, ncols = df.shape[0], df.attrs.get("rundown_ncols", df.shape[1])
     columns, n_index = _columns(df, max_columns)
 
     profile_pos = None
@@ -137,6 +164,8 @@ def rundown(
         )
         for label, s in columns
     ]
+    for prof in profiles:
+        prof.dtype = dtypes.get(prof.name, prof.dtype)
 
     k = max(0, min(n, nrows))
     if sample == "head":
@@ -168,3 +197,11 @@ def rundown(
 
 pd.DataFrame.rundown = rundown
 pd.Series.rundown = rundown
+
+try:
+    import polars as _pl
+except ImportError:  # pragma: no cover
+    pass
+else:
+    _pl.DataFrame.rundown = rundown
+    _pl.Series.rundown = rundown
