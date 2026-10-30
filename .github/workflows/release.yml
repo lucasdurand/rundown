@@ -59,6 +59,7 @@ jobs:
             echo "publish=$publish"
             echo "prerelease=$prerelease"
           } >> "$GITHUB_OUTPUT"
+      - run: uv run --frozen pytest -q
       - run: uv build
       - run: uvx twine check --strict dist/*
       - uses: actions/upload-artifact@v7
