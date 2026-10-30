@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rundown"
-version = "0.2.0"
-description = "Quick and dirty overview of a Pandas DataFrame"
+version = "0.3.0"
+description = "A sleek, scalable overview of a pandas DataFrame: margin histograms, top values, sparklines"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
@@ -15,8 +15,8 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dependencies = [
-    "matplotlib",
-    "pandas",
+    "numpy",
+    "pandas>=1.5",
 ]
 
 [project.urls]
@@ -25,11 +25,13 @@ Homepage = "https://github.com/lucasdurand/rundown"
 [dependency-groups]
 dev = [
     "jupyter>=1.1",
-    "matplotlib>=3.11",
     "pandas>=3.0",
+    "pytest>=8",
     "seaborn>=0.13",
 ]
 
 [tool.setuptools]
-packages = ["rundown", "rundown.utils"]
-include-package-data = true
+packages = ["rundown"]
+
+[tool.setuptools.package-data]
+rundown = ["assets/*"]
