@@ -215,3 +215,4 @@ def test_to_dash(mixed):
     assert frame.style["height"] == "300px" and frame.style["width"] == "100%"
     assert frame.srcDoc.startswith("<!doctype html>") and "frameElement" in frame.srcDoc
     assert 'class="rundown' in frame.srcDoc
+    assert frame.srcDoc.index('class="rundown') < frame.srcDoc.index("ResizeObserver")

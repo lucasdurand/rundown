@@ -32,7 +32,8 @@ __all__ = ["Rundown", "rundown", "ColumnProfile"]
 
 SAMPLE_MODES = ("random", "head", "tail")
 
-# srcdoc iframes share the parent's origin, so the page can resize its own frame to fit
+# srcdoc iframes share the parent's origin, so the page can resize its own frame to fit.
+# Goes after the content so document.body exists when the ResizeObserver is attached.
 _FIT_FRAME = (
     "<script>(function(){function fit(){var f=window.frameElement;"
     "if(f)f.style.height=Math.ceil(document.body.getBoundingClientRect().height)+'px';}"
@@ -54,8 +55,8 @@ class Rundown:
     def to_html(self) -> str:
         return self.html
 
-    def _page(self, head: str = "") -> str:
-        return f'<!doctype html><meta charset="utf-8"><title>rundown</title>{head}{self.html}'
+    def _page(self, head: str = "", tail: str = "") -> str:
+        return f'<!doctype html><meta charset="utf-8"><title>rundown</title>{head}{self.html}{tail}'
 
     def save(self, path: str | Path) -> Path:
         """Write a standalone HTML page."""
@@ -71,7 +72,7 @@ class Rundown:
         """
         from dash import html
 
-        page = self._page("<style>body{margin:0;display:flow-root}</style>" + _FIT_FRAME)
+        page = self._page("<style>body{margin:0;display:flow-root}</style>", _FIT_FRAME)
         style = {"width": "100%", "border": "0", "height": "520px", **kwargs.pop("style", {})}
         return html.Iframe(srcDoc=page, style=style, **kwargs)
 
